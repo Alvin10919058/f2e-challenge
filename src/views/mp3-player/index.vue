@@ -4,25 +4,25 @@
         <div class="player" :class="{'show-menu':showMenu}">
             <canvas id="cd_canvas"></canvas>
             <div class="cd-container">
-                <img id="cd-cover" class="cd-img" :class="{playing:isPlaying}" src="https://i.scdn.co/image/25caf2051c0e7156c6a9b102a7d2f4841194ac48" alt="">
+                <img id="cd-cover" class="cd-img" :class="{playing:isPlaying}" :src="songs[nowSongKey].picture" alt="">
                 <div class="cd_circle"></div>
             </div>
             <div class="btn-area">
-                <div class="btn-next">
+                <div @click="next" class="btn-next">
                     <img src="../../assets/mp3-player/next.svg" alt="">
                 </div>
-                <div class="btn-prev">
+                <div @click="prev" class="btn-prev">
                     <img src="../../assets/mp3-player/prev.svg" alt="">
                 </div>
-                <div class="btn-random clicked">
+                <div class="btn-random" @click="isRandom=!isRandom" :class="{clicked:isRandom}">
                     <img src="../../assets/mp3-player/random.svg" alt="">
-                    <span class="random-dot"></span>
+                    <span v-show="isRandom" class="random-dot"></span>
                 </div>
             </div>
             <div class="control-area">
                 <div class="title-area">
-                    <h1>test</h1>
-                    <p>detail</p>
+                    <h1>{{songs[nowSongKey].name}}</h1>
+                    <p>{{songs[nowSongKey].singer}}</p>
                 </div>
                 <div class="play-area">
                     <div class="control-tick" :class="{active:isPlaying}">
@@ -33,17 +33,17 @@
                 </div>
                 <div class="vol-slider-area">
                     <div class="slider-container">
-                        <input type="range" min="0" max="1" step="0.1" class="slider">
+                        <input v-model="nowVolume" type="range" min="0" max="1" step="0.1" class="slider">
                     </div>
                     <img class="sound" src="../../assets/mp3-player/sound.svg" alt="">
                 </div>
             </div>
             <div class="music-tick-area">
-                <div class="now-time">00:00</div>
+                <div class="now-time">{{prettyTime}}</div>
                 <div class="slider-container">
-                    <input type="range" min="0" max="1" step="0.1" class="music-slider">
+                    <input v-model="nowSongTime" type="range" min="0" :max="songs[nowSongKey].totalTime" step="1" class="music-slider">
                 </div>
-                <div class="total-time">03:42</div>
+                <div class="total-time">{{songs[nowSongKey].time}}</div>
             </div>
         </div>
         <div class="play-list" :class="{hide:!showMenu}">
@@ -71,69 +71,19 @@
                     </div>
                 </div>
                 <div class="list-item-area">
-                    <div class="item">
+                    <div v-for="song in songs" :key="song.id" @click="setSong(song.id)" class="item" :class="{'active':nowSongKey==song.id}">
                         <div class="info-area">
-                            <h3>I Don't Care</h3>
-                            <div class="singer-name">Ed Sheeran</div>
+                            <h3>{{song.name}}</h3>
+                            <div class="singer-name">{{song.singer}}</div>
                         </div>
                         <div class="album-time-area">
-                            <div class="album-name">single</div>
-                            <div class="time">03:42</div>
-                        </div>
-                    </div>
-                    <div class="item">
-                        <div class="info-area">
-                            <h3>I Don't Care</h3>
-                            <div class="singer-name">Ed Sheeran</div>
-                        </div>
-                        <div class="album-time-area">
-                            <div class="album-name">single</div>
-                            <div class="time">03:42</div>
-                        </div>
-                    </div>
-                    <div class="item">
-                        <div class="info-area">
-                            <h3>I Don't Care</h3>
-                            <div class="singer-name">Ed Sheeran</div>
-                        </div>
-                        <div class="album-time-area">
-                            <div class="album-name">single</div>
-                            <div class="time">03:42</div>
-                        </div>
-                    </div>
-                    <div class="item">
-                        <div class="info-area">
-                            <h3>I Don't Care</h3>
-                            <div class="singer-name">Ed Sheeran</div>
-                        </div>
-                        <div class="album-time-area">
-                            <div class="album-name">single</div>
-                            <div class="time">03:42</div>
-                        </div>
-                    </div>
-                    <div class="item">
-                        <div class="info-area">
-                            <h3>I Don't Care</h3>
-                            <div class="singer-name">Ed Sheeran</div>
-                        </div>
-                        <div class="album-time-area">
-                            <div class="album-name">single</div>
-                            <div class="time">03:42</div>
-                        </div>
-                    </div>
-                    <div class="item">
-                        <div class="info-area">
-                            <h3>I Don't Care</h3>
-                            <div class="singer-name">Ed Sheeran</div>
-                        </div>
-                        <div class="album-time-area">
-                            <div class="album-name">single</div>
-                            <div class="time">03:42</div>
+                            <div class="album-name">{{song.albumName}}</div>
+                            <div class="time">{{song.time}}</div>
                         </div>
                     </div>
                 </div>
                  <div class="picture">
-                    <img src="../../assets/mp3-player/cover.jpg" alt="">
+                    <img :src="songs[nowSongKey].picture" alt="">
                 </div>
             </div>
         </div>
@@ -142,9 +92,13 @@
 </template>
 
 <script>
+var audio = new Audio();
+
 export default {
   name: "week3-index",
   mounted() {
+    this.initData();
+
     var _this4 = this;
 
     var canvas = $("#cd_canvas");
@@ -184,28 +138,151 @@ export default {
       return Math.floor(Math.random() * length);
     }
   },
+  watch: {
+    nowSongTime(newData) {
+      audio.currentTime = newData;
+      this.count = newData;
+      //console.log("watch: ", newData);
+    },
+    nowVolume(newData) {
+      audio.volume = newData;
+    }
+  },
+  computed: {
+    prettyTime() {
+      let time = this.nowSongTime / 60;
+      let minutes = parseInt(time);
+      let secondes = Math.round((time - minutes) * 60);
+      if (minutes / 10 < 1) {
+        minutes = "0" + minutes;
+      }
+      if (secondes / 10 < 1) {
+        secondes = "0" + secondes;
+      }
+      return `${minutes}:${secondes}`;
+    }
+  },
   data() {
     return {
       isPlaying: false,
       showMenu: false,
       timer: 0,
-      count: 0
+      count: 0,
+      isRandom: false,
+      nowSongKey: 1,
+      nowVolume: 0.5,
+      nowSongTime: 0,
+      songs: {
+        1: {
+          id: 1,
+          name: "Shallow",
+          singer: "Lady Gaga, Bradley Cooper",
+          albumName: "A Star Is Born",
+          time: "03:36",
+          totalTime: "216",
+          audio: "/songs/1.mp3",
+          picture: "/songs/1.png",
+          isLiked: false
+        },
+        2: {
+          id: 2,
+          name: "Señorita",
+          singer: "Shawn Mendes, Camila Cabello",
+          albumName: "Señorita",
+          time: "03:11",
+          totalTime: "191",
+          audio: "/songs/2.mp3",
+          picture: "/songs/2.png",
+          isLiked: false
+        },
+        3: {
+          id: 3,
+          name: "Old Town Road",
+          singer: "Lil Nas X(feat. Billy Ray Cyrus)",
+          albumName: "7 EP",
+          time: "02:37",
+          totalTime: "157",
+          audio: "/songs/3.mp3",
+          picture: "/songs/3.png",
+          isLiked: false
+        },
+        4: {
+          id: 4,
+          name: "Rewrite The Stars",
+          singer: "Zac Efron, Zendaya",
+          albumName: "The Greatest Showman",
+          time: "03:36",
+          totalTime: "216",
+          audio: "/songs/4.mp3",
+          picture: "/songs/4.png",
+          isLiked: false
+        },
+        5: {
+          id: 5,
+          name: " I'm So Tired",
+          singer: "Lauv & Troye Sivan",
+          albumName: "single",
+          time: "02:44",
+          totalTime: "164",
+          audio: "/songs/5.mp3",
+          picture: "/songs/5.png",
+          isLiked: false
+        },
+        6: {
+          id: 6,
+          name: "Summer Days",
+          singer: "Martin Garrix feat.Macklemore",
+          albumName: "single",
+          time: "02:44",
+          totalTime: "164",
+          audio: "/songs/6.mp3",
+          picture: "/songs/6.png",
+          isLiked: false
+        },
+        7: {
+          id: 7,
+          name: "Speechless",
+          singer: "Naomi Scott ",
+          albumName: "Aladdin",
+          time: "03:26",
+          totalTime: "206",
+          audio: "/songs/7.mp3",
+          picture: "/songs/7.png",
+          isLiked: false
+        }
+      }
     };
   },
   methods: {
+    initData() {
+      this.isPlaying = false;
+      audio.pause();
+      audio.src = this.songs[this.nowSongKey].audio;
+      clearInterval(this.timer);
+      this.timer = 0;
+      this.count = 0;
+      this.nowSongTime = 0;
+    },
     play() {
       this.isPlaying = !this.isPlaying;
+      // 暫停
       if (!this.isPlaying) {
+        audio.pause();
         this.clearCdArc();
         clearInterval(this.timer);
       } else {
-        this.timer = setInterval(this.countFunc, 50);
+        // 播放
+        this.timer = setInterval(this.countFunc, 1000);
+        audio.play();
       }
     },
     countFunc() {
       this.count++;
-      //   document.getElementById("cd-cover").style.transform =
-      //     "rotate(" + this.count + "deg)";
+      //console.log("counter: ", this.count);
+      if (this.count >= this.songs[this.nowSongKey].totalTime) {
+        this.next();
+      }
+      this.nowSongTime = this.count;
     },
     clearCdArc() {
       var canvas = $("#cd_canvas");
@@ -217,6 +294,24 @@ export default {
       ctx.fillStyle = "#fff";
       ctx.fillRect(0, 0, ww, hh);
       ctx.restore();
+    },
+    next() {
+      this.nowSongKey++;
+      if (this.nowSongKey == 8) this.nowSongKey = 1;
+      this.initData();
+      this.play();
+    },
+    prev() {
+      this.nowSongKey--;
+      if (this.nowSongKey == 0) this.nowSongKey = 7;
+      this.initData();
+      this.play();
+    },
+    setSong(key) {
+      this.nowSongKey = key;
+      if (this.nowSongKey == 0) this.nowSongKey = 7;
+      this.initData();
+      this.play();
     }
   }
 };
@@ -448,6 +543,7 @@ export default {
         }
       }
       .music-tick-area {
+        margin-top: 10px;
         padding: 0 15px;
         display: flex;
         justify-content: space-around;
@@ -561,6 +657,8 @@ export default {
           align-items: center;
           height: 75px;
           padding: 10px;
+          border-bottom: 3px solid #000;
+          background-color: #f2f2f2;
           h2 {
             margin: 0px;
           }
@@ -582,27 +680,38 @@ export default {
           width: 100%;
           height: 400px;
           box-sizing: border-box;
-          margin-top: 20px;
+          margin: 10px 0px;
           padding: 0 25px;
           overflow-y: auto;
           .item:first-child {
             border-top: 3px solid #000;
           }
           .item {
+            cursor: pointer;
+            box-sizing: border-box;
             font-size: 18px;
             height: 75px;
-            padding: 0 10px;
+            padding: 5px 10px;
             border-bottom: 3px solid #000;
             display: flex;
             justify-content: space-between;
             .info-area {
               text-align: left;
-              width: 50%;
+              width: 60%;
               display: flex;
               flex-direction: column;
               justify-content: space-around;
               h3 {
+                overflow: hidden;
+                white-space: nowrap;
+                text-overflow: ellipsis;
+                line-height: 24px;
                 margin: 0px;
+              }
+              .singer-name {
+                overflow: hidden;
+                white-space: nowrap;
+                text-overflow: ellipsis;
               }
             }
             .album-time-area {
@@ -611,23 +720,33 @@ export default {
               flex-direction: column;
               justify-content: space-around;
               text-align: right;
-              width: 50%;
+              width: 40%;
+              .album-name {
+                overflow: hidden;
+                white-space: nowrap;
+                text-overflow: ellipsis;
+              }
             }
           }
           .item:hover {
             background-color: #c5c5c5;
           }
+          .active {
+            background-color: #c5c5c5;
+          }
         }
         .picture {
-          background-color: #000;
+          border-top: 3px solid #000;
+          border-bottom: 3px solid #000;
+          background-color: #f2f2f2;
           width: 100%;
-          height: 140px;
+          height: 135px;
+          display: flex;
+          justify-content: center;
+          align-items: center;
           img {
-            position: absolute;
             width: 150px;
             height: 133px;
-            bottom: 3px;
-            left: 90px;
           }
         }
       }
