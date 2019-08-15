@@ -1,94 +1,142 @@
 <template>
-<div id="mp3-player">
+  <div id="mp3-player">
     <div class="container">
-        <div class="player" :class="{'show-menu':showMenu}">
-            <canvas id="cd_canvas"></canvas>
-            <div class="cd-container">
-                <img id="cd-cover" class="cd-img" :class="{playing:isPlaying}" :src="songs[nowSongKey].picture" alt="">
-                <div class="cd_circle"></div>
-            </div>
-            <div class="btn-area">
-                <div @click="next" class="btn-next">
-                    <img src="../../assets/mp3-player/next.svg" alt="">
-                </div>
-                <div @click="prev" class="btn-prev">
-                    <img src="../../assets/mp3-player/prev.svg" alt="">
-                </div>
-                <div class="btn-random" @click="isRandom=!isRandom" :class="{clicked:isRandom}">
-                    <img src="../../assets/mp3-player/random.svg" alt="">
-                    <span v-show="isRandom" class="random-dot"></span>
-                </div>
-            </div>
-            <div class="control-area">
-                <div class="title-area">
-                    <h1>{{songs[nowSongKey].name}}</h1>
-                    <p>{{songs[nowSongKey].singer}}</p>
-                </div>
-                <div class="play-area">
-                    <div class="control-tick" :class="{active:isPlaying}">
-                        <img class="tick" :class="{active:isPlaying}" src="../../assets/mp3-player/player.svg" alt="">
-                    </div>
-                    <img v-show="!isPlaying" @click="play" class="btn-play" src="../../assets/mp3-player/play.svg" alt="">
-                    <img v-show="isPlaying" @click="play" class="btn-play" src="../../assets/mp3-player/stop.svg" alt="">
-                </div>
-                <div class="vol-slider-area">
-                    <div class="slider-container">
-                        <input v-model="nowVolume" type="range" min="0" max="1" step="0.1" class="slider">
-                    </div>
-                    <img class="sound" src="../../assets/mp3-player/sound.svg" alt="">
-                </div>
-            </div>
-            <div class="music-tick-area">
-                <div class="now-time">{{prettyTime}}</div>
-                <div class="slider-container">
-                    <input v-model="nowSongTime" type="range" min="0" :max="songs[nowSongKey].totalTime" step="1" class="music-slider">
-                </div>
-                <div class="total-time">{{songs[nowSongKey].time}}</div>
-            </div>
+      <div class="player" :class="{ 'show-menu': showMenu }">
+        <canvas id="cd_canvas"></canvas>
+        <div class="cd-container">
+          <img
+            id="cd-cover"
+            class="cd-img"
+            :class="{ playing: isPlaying }"
+            :src="songs[nowSongKey].picture"
+            alt=""
+          />
+          <div class="cd_circle"></div>
         </div>
-        <div class="play-list" :class="{hide:!showMenu}">
-            <div class="menu">
-                <div class="play-list-search">
-                    <input type="text"> 
-                    <button><i class="fas fa-search"></i></button>
-                </div>
-                <div class="option">
-                    <h4>播放清單</h4>
-                </div>
-                <div class="option">
-                    <h4>歌手</h4>
-                </div>
-                <div class="option">
-                    <h4>我的最愛</h4>
-                </div>
-            </div>
-            <div class="list-content">
-                <div class="list-title">
-                    <h2>工作歌單</h2>
-                    <div @click="showMenu=!showMenu" class="play-list-switch-btn">
-                        <span>List</span>
-                        <i class="fas fa-bars"></i>
-                    </div>
-                </div>
-                <div class="list-item-area">
-                    <div v-for="song in songs" :key="song.id" @click="setSong(song.id)" class="item" :class="{'active':nowSongKey==song.id}">
-                        <div class="info-area">
-                            <h3>{{song.name}}</h3>
-                            <div class="singer-name">{{song.singer}}</div>
-                        </div>
-                        <div class="album-time-area">
-                            <div class="album-name">{{song.albumName}}</div>
-                            <div class="time">{{song.time}}</div>
-                        </div>
-                    </div>
-                </div>
-                 <div class="picture">
-                    <img :src="songs[nowSongKey].picture" alt="">
-                </div>
-            </div>
+        <div class="btn-area">
+          <div @click="next" class="btn-next">
+            <img src="../../assets/mp3-player/next.svg" alt="" />
+          </div>
+          <div @click="prev" class="btn-prev">
+            <img src="../../assets/mp3-player/prev.svg" alt="" />
+          </div>
+          <div
+            class="btn-random"
+            @click="isRandom = !isRandom"
+            :class="{ clicked: isRandom }"
+          >
+            <img src="../../assets/mp3-player/random.svg" alt="" />
+            <span v-show="isRandom" class="random-dot"></span>
+          </div>
         </div>
+        <div class="control-area">
+          <div class="title-area">
+            <h1>{{ songs[nowSongKey].name }}</h1>
+            <p>{{ songs[nowSongKey].singer }}</p>
+          </div>
+          <div class="play-area">
+            <div class="control-tick" :class="{ active: isPlaying }">
+              <img
+                class="tick"
+                :class="{ active: isPlaying }"
+                src="../../assets/mp3-player/player.svg"
+                alt=""
+              />
+            </div>
+            <img
+              v-show="!isPlaying"
+              @click="play"
+              class="btn-play"
+              src="../../assets/mp3-player/play.svg"
+              alt=""
+            />
+            <img
+              v-show="isPlaying"
+              @click="play"
+              class="btn-play"
+              src="../../assets/mp3-player/stop.svg"
+              alt=""
+            />
+          </div>
+          <div class="vol-slider-area">
+            <div class="slider-container">
+              <input
+                v-model="nowVolume"
+                type="range"
+                min="0"
+                max="1"
+                step="0.1"
+                class="slider"
+              />
+            </div>
+            <img class="sound" src="../../assets/mp3-player/sound.svg" alt="" />
+          </div>
+        </div>
+        <div class="music-tick-area">
+          <div class="now-time">{{ prettyTime }}</div>
+          <div class="slider-container">
+            <input
+              v-model="nowSongTime"
+              id="$seekbar"
+              type="range"
+              min="0"
+              :max="songs[nowSongKey].totalTime"
+              step="1"
+              class="music-slider"
+            />
+          </div>
+          <div class="total-time">{{ songs[nowSongKey].time }}</div>
+        </div>
+      </div>
+      <div class="play-list" :class="{ hide: !showMenu }">
+        <div class="menu">
+          <div class="play-list-search">
+            <input type="text" />
+            <button><i class="fas fa-search"></i></button>
+          </div>
+          <div class="option">
+            <h4>播放清單</h4>
+          </div>
+          <div class="option">
+            <h4>歌手</h4>
+          </div>
+          <div class="option">
+            <h4>我的最愛</h4>
+          </div>
+        </div>
+        <div class="list-content">
+          <div class="list-title">
+            <h2>工作歌單</h2>
+            <div @click="showMenu = !showMenu" class="play-list-switch-btn">
+              <span>List</span>
+              <i class="fas fa-bars"></i>
+            </div>
+          </div>
+          <div class="list-item-area">
+            <div
+              v-for="song in songs"
+              :key="song.id"
+              @click="setSong(song.id)"
+              class="item"
+              :class="{ active: nowSongKey == song.id }"
+            >
+              <div class="info-area">
+                <h3>{{ song.name }}</h3>
+                <div class="singer-name">{{ song.singer }}</div>
+              </div>
+              <div class="album-time-area">
+                <div class="album-name">{{ song.albumName }}</div>
+                <div class="time">{{ song.time }}</div>
+              </div>
+            </div>
+          </div>
+          <div class="picture">
+            <img :src="songs[nowSongKey].picture" alt="" />
+          </div>
+        </div>
+      </div>
     </div>
-</div>
+  </div>
 </template>
 
 <script>
@@ -140,7 +188,7 @@ export default {
   },
   watch: {
     nowSongTime(newData) {
-      audio.currentTime = newData;
+      //audio.currentTime = newData;
       this.count = newData;
       //console.log("watch: ", newData);
     },
@@ -262,6 +310,7 @@ export default {
       this.timer = 0;
       this.count = 0;
       this.nowSongTime = 0;
+      $seekbar.onchange = () => (audio.currentTime = $seekbar.value);
     },
     play() {
       this.isPlaying = !this.isPlaying;
