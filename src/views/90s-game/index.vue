@@ -23,10 +23,22 @@ const gameStart = {
         this.bg3 = this.add.tileSprite(w / 2, h / 2, w, h, 'bg3')
         this.bg2 = this.add.tileSprite(w / 2, h / 2, w, h, 'bg2')
         this.bg1 = this.add.tileSprite(w / 2, h / 2, w, h, 'bg1')
-        this.ground = this.add.tileSprite(w / 2, h - 45, w, 90, 'ground')
 
-        this.player = this.add.sprite(150, 150, 'player')
+        this.ground = this.add.tileSprite(w / 2, h - 45, w, 90, 'ground')
+        this.physics.add.existing(this.ground)
+        // 設定物件不會動靜止不會掉下去
+        this.ground.body.immovable = true
+        // 物件的位置和旋轉是否受其速度，加速度，阻力和重力的影響
+        this.ground.body.moves = false
+
+        this.player = this.physics.add.sprite(150, 150, 'player')
         this.player.setScale(0.7)
+        //將需要碰撞的物件綁在一起
+        this.physics.add.collider(this.player, this.ground)
+        //設定角色彈跳值
+        this.player.setBounce(1)
+        //設定角色碰撞邊界
+        this.player.setCircle(40, 30, 4)
 
         this.anims.create({
             key: 'run',
@@ -42,6 +54,13 @@ const gameStart = {
         this.bg2.tilePositionX += 3
         this.bg1.tilePositionX += 4
         this.ground.tilePositionX += 4
+
+        // 引入鍵盤物件
+        const keyboard = this.input.keyboard.createCursorKeys()
+
+        if (keyboard.right.isDown) {
+            console.log('right!')
+        }
     }
 }
 const config = {
@@ -49,6 +68,15 @@ const config = {
     width: w,
     height: h,
     parent: 'game-app',
+    physics: {
+        default: 'arcade',
+        arcade: {
+            gravity: {
+                y: 700
+            },
+            debug: true
+        }
+    },
     scene: [gameStart]
 }
 
