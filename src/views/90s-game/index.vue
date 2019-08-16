@@ -33,6 +33,8 @@ const gameStart = {
 
         this.player = this.physics.add.sprite(150, 150, 'player')
         this.player.setScale(0.7)
+        //邊界設定
+        this.player.setCollideWorldBounds()
         //將需要碰撞的物件綁在一起
         this.physics.add.collider(this.player, this.ground)
         //設定角色彈跳值
@@ -47,7 +49,12 @@ const gameStart = {
             repeat: -1
         })
 
-        this.player.anims.play('run', true)
+        this.anims.create({
+            key: 'speed',
+            frames: this.anims.generateFrameNumbers('player', { start: 4, end: 5 }),
+            frameRate: 5,
+            repeat: -1
+        })
     },
     update: function() {
         this.bg3.tilePositionX += 2
@@ -59,7 +66,19 @@ const gameStart = {
         const keyboard = this.input.keyboard.createCursorKeys()
 
         if (keyboard.right.isDown) {
-            console.log('right!')
+            this.player.flipX = false
+            this.player.anims.play('speed', true)
+            this.player.setVelocityX(200)
+            //this.player.setCircle(40, 55, 16)
+        } else if (keyboard.left.isDown) {
+            this.player.flipX = true
+            this.player.anims.play('speed', true)
+            this.player.setVelocityX(-260)
+        } else {
+            this.player.flipX = false
+            this.player.anims.play('run', true)
+            this.player.setCircle(40, 30, 4)
+            this.player.setVelocityX(0)
         }
     }
 }
