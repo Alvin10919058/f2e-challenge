@@ -13,10 +13,51 @@ const gameStart = {
         this.load.image('bg2', './assets/images/bg/bg2.png')
         this.load.image('bg1', './assets/images/bg/bg1.png')
         this.load.image('ground', './assets/images/bg/footer.png')
+
+        this.load.image('title', './assets/images/ui/txt-title.png')
+        this.load.image('playBtn', './assets/images/ui/btn-press-start.png')
+        this.load.image('logo', './assets/images/ui/player-end.png')
+    },
+    create: function() {
+        this.bg4 = this.add.tileSprite(w / 2, h / 2, w, h, 'bg4')
+        this.bg3 = this.add.tileSprite(w / 2, h / 2, w, h, 'bg3')
+        this.bg2 = this.add.tileSprite(w / 2, h / 2, w, h, 'bg2')
+        this.bg1 = this.add.tileSprite(w / 2, h / 2, w, h, 'bg1')
+        this.ground = this.add.tileSprite(w / 2, h - 45, w, 90, 'ground')
+
+        let title = this.add.image(w / 2, h / 2 - 115, 'title')
+        title.setScale(0.6)
+
+        let playBtn = this.add.image(w / 2, h / 2, 'playBtn')
+        playBtn.setScale(0.5)
+        // 開啟物件的互動模式（才可以綁定事件）
+        playBtn.setInteractive()
+        playBtn.on('pointerdown', () => this.scene.start('gamePlay'))
+
+        let logo = this.add.image(w / 2, h / 2 + 95, 'logo')
+        logo.setScale(0.4)
+    },
+    update: function() {
+        this.bg3.tilePositionX += 2
+        this.bg2.tilePositionX += 3
+        this.bg1.tilePositionX += 4
+        this.ground.tilePositionX += 4
+    }
+}
+const gamePlay = {
+    key: 'gamePlay',
+    preload: function() {
+        this.load.image('bg4', './assets/images/bg/bg4.png')
+        this.load.image('bg3', './assets/images/bg/bg3.png')
+        this.load.image('bg2', './assets/images/bg/bg2.png')
+        this.load.image('bg1', './assets/images/bg/bg1.png')
+        this.load.image('ground', './assets/images/bg/footer.png')
         this.load.spritesheet('player', './assets/images/player.png', {
             frameWidth: 144,
             frameHeight: 120
         })
+
+        this.timeInt = 30
     },
     create: function() {
         this.bg4 = this.add.tileSprite(w / 2, h / 2, w, h, 'bg4')
@@ -55,6 +96,19 @@ const gameStart = {
             frameRate: 5,
             repeat: -1
         })
+
+        this.timeText = this.add.text(w - 180, h - 50, `Time: ${this.timeInt}`, {
+            color: '#fff',
+            fontSize: '30px'
+        })
+
+        let timer = setInterval(() => {
+            this.timeInt--
+            this.timeText.setText(`Time: ${this.timeInt}`)
+            if (this.timeInt <= 0) {
+                clearInterval(timer)
+            }
+        }, 1000)
     },
     update: function() {
         this.bg3.tilePositionX += 2
@@ -96,7 +150,7 @@ const config = {
             debug: true
         }
     },
-    scene: [gameStart]
+    scene: [gamePlay, gameStart]
 }
 
 const game = new Phaser.Game(config)
