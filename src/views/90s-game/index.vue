@@ -57,7 +57,7 @@ const gamePlay = {
             frameHeight: 120
         })
 
-        this.timeInt = 30
+        this.timeInt = 90
     },
     create: function() {
         this.bg4 = this.add.tileSprite(w / 2, h / 2, w, h, 'bg4')
@@ -119,15 +119,27 @@ const gamePlay = {
         // 引入鍵盤物件
         const keyboard = this.input.keyboard.createCursorKeys()
 
+        if (keyboard.space.isDown) {
+            this.player.setVelocityY(-200)
+        }
+
+        if (keyboard.up.isDown) {
+            this.player.setVelocityY(-200)
+        }
+        if (keyboard.down.isDown) {
+            this.player.setVelocityY(200)
+        }
+
         if (keyboard.right.isDown) {
             this.player.flipX = false
             this.player.anims.play('speed', true)
             this.player.setVelocityX(200)
-            //this.player.setCircle(40, 55, 16)
+            this.player.setCircle(40, 55, 16)
         } else if (keyboard.left.isDown) {
             this.player.flipX = true
             this.player.anims.play('speed', true)
             this.player.setVelocityX(-260)
+            this.player.setCircle(40, 6, 16)
         } else {
             this.player.flipX = false
             this.player.anims.play('run', true)
